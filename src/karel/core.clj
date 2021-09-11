@@ -20,14 +20,14 @@
 (defn chip [x y]
   (entity x y :chip))
 
-(defn get-entity [state kind]
+(defn get-entities [state kind]
   (filter
     #(= (get-in % [:type]) kind)
     state))
 
 (defn get-karel [state]
   (-> state
-      (get-entity :karel)
+      (get-entities :karel)
       first))
 
 (defn pos [entity]
@@ -36,7 +36,7 @@
 (defn on-chip? [state]
   (let [karel (get-karel state)
         k-pos (pos karel)
-        cs-pos (map pos (get-entity state :chip))]
+        cs-pos (map pos (get-entities state :chip))]
     (seq (filter #(= k-pos %) cs-pos))))
 
 (defn walk [{:keys [angle] :as entity}]
@@ -63,7 +63,7 @@
   (let [state [(karel 1 0) (wall 2 0) (wall 3 0)]]
     (on-chip? state))
   (get-karel [(karel 1 0) (wall 1 0) (wall 1 0)])
-  (get-entity [(karel 1 0) (wall 2 0) (wall 3 0)] :wall)
+  (get-entities [(karel 1 0) (wall 2 0) (wall 3 0)] :wall)
   (step [(wall 0 0)])
   (chip 0 0)
   (turn (turn (karel 1 0)))
