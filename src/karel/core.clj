@@ -1,59 +1,28 @@
 (ns karel.core
-  (:require [clojure.string :as str])
-  (:gen-class))
+  (:require
+    [clojure.string :as str]))
 
-(defn elemento->grafico [{:keys [tipo]}]
-  (or
-   (tipo {:parede "."
-          :karel ">"
-          :chip "c"})
-   " "))
+(defn entity [x y t]
+  {:x x :y y :type t})
 
-(defn criador-elemento [tipo x y]
-  {:x x :y y :tipo tipo})
+(defn karel [x y]
+  (entity x y :karel))
 
-(def parede (partial criador-elemento :parede))
-(def karel (partial criador-elemento :karel))
-(def nada (partial criador-elemento :nada))
-(def chip (partial criador-elemento :chip))
+(defn wall [x y]
+  (entity x y :wall))
 
-(defn mundo [tam]
-  (for [x (range tam)
-        y (range tam)]
-    (parede x y)))
+(defn walk [entity]
+  (update entity :x inc))
 
-(defn coloca [mundo elemento]
-  (conj 
-   (remove (fn [e] (and (= (:x elemento) (:x e)
-                           (:y elemento) (:y e))))
-           mundo)
-   elemento))
+(defn step "state is a vector of entities"
+  [state]
+  (if-let [karel (first
+                   (filter
+                     #(= (get-in % [:type]) :karel)
+                     state))]
+    (walk karel)
+    state))
 
-(defn desenha-linha [elementos]
-  (->
-   (map elemento->grafico elementos)
-   (str/join)
-   (str "\n")))
-
-(defn desenha [mundo]
-  (let [max-x (->> (map :x mundo) 
-                 (apply max)
-                 inc)]
-    (map desenha-linha (partition max-x 
-                                  (sort-by :y mundo)))))
-
-(def cenario (-> (mundo 5)
-                 (coloca (karel 0 0))
-                 (coloca (chip 1 2))
-                 (coloca (chip 2 4))))
-
-(defn anda 
-  ([karel] 
-   (update karel :x inc))
-  ([karel n]
-   (last (take n (iterate anda karel)))))
-
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println (desenha cenario)))
+(comment
+  (step [(wall 0 0)])
+  (step [(karel 1 0) (wall 1 1)]))
