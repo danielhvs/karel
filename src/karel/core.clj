@@ -55,6 +55,21 @@
     (walk karel)
     state))
 
+(defn make-vertical-line [kind x y-ini y-end]
+  (for [y (range y-ini y-end)]
+    (entity x y kind)))
+
+(defn make-horizontal-line [kind y x-ini x-end]
+  (for [x (range x-ini x-end)]
+    (entity x y kind)))
+
+(def s1
+  (concat
+    (make-horizontal-line :wall 0 0 5)
+    (make-horizontal-line :wall 5 0 5)
+    (make-vertical-line :wall 0 0 5)
+    (make-vertical-line :wall 5 0 5)))
+
 (comment
   (let [state [(karel 1 0)
                (chip 2 0) (chip 3 0) (chip 1 0)
