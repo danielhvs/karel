@@ -87,8 +87,6 @@
 (defn points->quil [points length]
   (map (fn [p] (point->quil p length)) points))
 
-(def ENTER 10)
-
 (defn setup "returns the initial state" []
   (q/stroke 0xffa8d0db)
   (q/stroke 255 255 0)
@@ -102,8 +100,10 @@
    :karel #(q/fill 0 0 255)})
 
 (defn the-key-handler [state k]
-  (assoc state
-    :done (= ENTER (:key-code k))))
+  (case (:key-code k)
+    74 (turn state) ; J 
+    75 (step state) ; K 
+    state))
 
 (defn ->pos [entities]
   (map (fn [e] (pos e)) entities))
@@ -124,6 +124,8 @@
     (square x y)))
 
 (defn draw-state [state]
+  (q/clear)
+  (q/background 255 255 255)
   (doseq [kind [:walls :chips :karel :goals]]
     (let [points (->pos (-> state
                             kind))]
