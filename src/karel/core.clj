@@ -52,14 +52,15 @@
     (entity x y)))
 
 (def s1
-  {:karel [(entity 3 3)]
-   :chips [(entity 1 4) (entity 2 3)]
+  {:karel [(entity 1 1)]
+   :chips [(entity 2 1)]
+   :goals [(entity 6 2)]
    :walls
      (concat
-       (make-horizontal-line 0 0 8)
-       (make-horizontal-line 8 0 8)
-       (make-vertical-line 0 0 8)
-       (make-vertical-line 8 0 8))})
+       (make-horizontal-line 0 0 7)
+       (make-horizontal-line 3 0 7)
+       (make-vertical-line 0 0 3)
+       (make-vertical-line 7 0 3))})
 
 (comment
   (let [state {:karel [(entity 1 0)]
@@ -97,6 +98,7 @@
 (def colors
   {:walls #(q/fill 0 255 0)
    :chips #(q/fill 255 0 0)
+   :goals #(q/fill 128 0 128)
    :karel #(q/fill 0 0 255)})
 
 (defn the-key-handler [state k]
@@ -122,7 +124,7 @@
     (square x y)))
 
 (defn draw-state [state]
-  (doseq [kind [:walls :chips :karel]]
+  (doseq [kind [:walls :chips :karel :goals]]
     (let [points (->pos (-> state
                             kind))]
       (doseq [[x y] (points->quil points L)]
