@@ -38,10 +38,13 @@
         angle (:angle karel)
         dir-fn (get walk-dir angle)
         dir (first (keys dir-fn))
-        walk-fn (first (vals dir-fn))]
-    (println state karel angle dir-fn dir walk-fn)
-    (assoc state :karel
-        [(update karel dir walk-fn)])))
+        walk-fn (first (vals dir-fn))
+        next-karel (update karel dir walk-fn)]
+    (if (seq (filter
+               (fn [w] (= (pos next-karel) (pos w)))
+               (:walls state)))
+      state
+      (assoc state :karel [next-karel]))))
 
 (defn make-vertical-line [x y-ini y-end]
   (for [y (range y-ini (inc y-end))]
