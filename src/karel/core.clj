@@ -40,11 +40,11 @@
         (update karel dir walk-fn))))
 
 (defn make-vertical-line [x y-ini y-end]
-  (for [y (range y-ini y-end)]
+  (for [y (range y-ini (inc y-end))]
     (entity x y)))
 
 (defn make-horizontal-line [y x-ini x-end]
-  (for [x (range x-ini x-end)]
+  (for [x (range x-ini (inc x-end))]
     (entity x y)))
 
 (def s1
@@ -52,12 +52,10 @@
    :chips [(entity 1 1) (entity 3 3)]
    :walls
      (concat
-       (make-horizontal-line 0 0 20)
-       (make-horizontal-line 20 0 20)
-       (make-vertical-line 0 0 20)
-       (make-vertical-line 20 0 20))})
-(map pos
-     (:walls s1))
+       (make-horizontal-line 0 0 3)
+       (make-horizontal-line 3 0 3)
+       (make-vertical-line 0 0 3)
+       (make-vertical-line 3 0 3))})
 
 (comment
   {:karel {:x 0 :y 0 :angle 0}
@@ -80,68 +78,46 @@
   (turn
     (step [(entity 1 0) (entity 1 1)])))
 
+(def L 40)
 (def W 800)
 (def H 600)
+
+(defn point->quil [[x y] length]
+  [(* x length)
+   (* y length)])
+
+(defn points->quil [points length]
+  (map (fn [p] (point->quil p length)) points))
+
 (def ENTER 10)
 
 (defn setup "returns the initial state" []
-  ; Set frame rate frames per second.
-  (q/frame-rate 10)
-  ; Set color mode to HSB (HSV) instead of default RGB.
-  (q/color-mode :hsb)
-  ; setup function returns initial state. It contains
-  ; circle color and position.
-  {:image (q/load-image "resources/test.png")
-   :s s1})
-
-(defn key-to-offset-w [key]
-  (case (:key key)
-    :left dec
-    :right inc
-    identity))
-
-(defn key-to-offset-h [key]
-  (case (:key key)
-    :up dec
-    :down inc
-    identity))
+  (q/stroke 0xffa8d0db)
+  (q/stroke 255 255 0)
+  (q/stroke-weight 1)
+  (q/fill 0 255 0)
+  s1)
 
 (defn the-key-handler [state k]
   (assoc state
-    :s (:s state)
     :done (= ENTER (:key-code k))))
 
-(defn f-all-pos [walls]
-  (map (fn [w] (pos w)) walls))
+(defn ->pos [entities]
+  (map (fn [e] (pos e)) entities))
 
-(defn update [state]
-  (let [img (:image state)]
-    (if (q/loaded? img)
-      {:image img
-       :s (:s state)
-       :done (:done state)}
-      {:image img
-       :s (:s state)
-       :done (:done state)})))
+(defn update-state [state]
+  state)
 
-(defn draw-labels [state]
-  (let [img (:image state)]
-    (when-let [all-pos (f-all-pos (:walls (:s state)))]
-      (do
-        (println "DAAAAAAAAAAAAAAAAA" all-pos)
-        (flush)
-        (q/background 255)
-        (doall
-          (map #(q/image img (first %) (second %)) all-pos))))))
+(defn make-square [l]
+  (fn [x y] (q/rect x y l l)))
 
-(defn draw [state]
-  (when (:all-pos state)
-    (if (:done state)
-      (do
-        (q/do-record (q/create-graphics W H :pdf "out.pdf")
-                     (draw-labels state))
-        (q/exit))
-      (draw-labels state))))
+(def square (make-square L))
+
+(defn draw-state [state]
+  (let [points (->pos (-> state
+                          :walls))]
+    (doseq [[x y] (points->quil points L)]
+      (square x y))))
 
 (q/defsketch label-maker
   :title "karel"
@@ -149,8 +125,8 @@
   ; setup function called only once, during sketch nitialization.
   :setup setup
   ; update is called on each iteration before draw.
-  :update update
-  :draw draw
+  :update update-state
+  :draw draw-state
   :features [:keep-on-top]
   :key-pressed the-key-handler
   ; This sketch uses functional-mode middleware.
