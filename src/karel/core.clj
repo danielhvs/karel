@@ -121,9 +121,8 @@
   [e]
   (let [kind (first e)
         [x y] (second e)]
-    (do
-      ((kind colors))
-      (square x y))))
+    ((kind colors))
+    (square x y)))
 
 (defn draw-state [state]
   (doseq [kind [:walls :chips]]
