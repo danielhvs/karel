@@ -49,7 +49,7 @@
 
 (def s1
   {:karel (entity 3 3)
-   :chips [(entity 1 1) (entity 3 3)]
+   :chips [(entity 1 1) (entity 2 2)]
    :walls
      (concat
        (make-horizontal-line 0 0 3)
@@ -95,8 +95,12 @@
   (q/stroke 0xffa8d0db)
   (q/stroke 255 255 0)
   (q/stroke-weight 1)
-  (q/fill 0 255 0)
   s1)
+
+(def colors
+  {:walls #(q/fill 0 255 0)
+   :chips #(q/fill 255 0 0)
+   :karel #(q/fill 0 0 255)})
 
 (defn the-key-handler [state k]
   (assoc state
@@ -113,11 +117,20 @@
 
 (def square (make-square L))
 
-(defn draw-state [state]
-  (let [points (->pos (-> state
-                          :walls))]
-    (doseq [[x y] (points->quil points L)]
+(defn draw-element "{:type [x y]}"
+  [e]
+  (let [kind (first e)
+        [x y] (second e)]
+    (do
+      ((kind colors))
       (square x y))))
+
+(defn draw-state [state]
+  (doseq [kind [:walls :chips]]
+    (let [points (->pos (-> state
+                            kind))]
+      (doseq [[x y] (points->quil points L)]
+        (draw-element [kind [x y]])))))
 
 (q/defsketch label-maker
   :title "karel"
