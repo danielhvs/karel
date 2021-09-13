@@ -10,7 +10,7 @@
    270 {:y dec}})
 
 (defn entity [x y]
-  {:x x :y y :angle 0})
+  {:x x :y y :z 0 :angle 0})
 
 (defn pos [entity]
   [(:x entity) (:y entity)])
@@ -20,9 +20,8 @@
 
 (defn on-chip? [state]
   (let [karel (get-karel state)
-        k-pos (pos karel)
-        cs-pos (map pos (:chips state))]
-    (seq (filter #(= k-pos %) cs-pos))))
+        k-pos (pos karel)]
+    (first (filter #(= k-pos (pos %)) (:chips state)))))
 
 (defn turn [state]
   (let [karel (get-karel state)
@@ -54,6 +53,16 @@
   (for [x (range x-ini (inc x-end))]
     (entity x y)))
 
+(defn grab [state]
+  (if-let [chip (on-chip? state)]
+    (let [chips (:chips state)
+          new-chip (update chip :z inc)]
+      (assoc state :chips
+          (conj
+            (remove (fn [c] (= chip c)) chips)
+            new-chip)))
+    state))
+
 (def s1
   {:karel [(entity 1 1)]
    :chips [(entity 2 1)]
@@ -66,6 +75,8 @@
        (make-vertical-line 7 0 3))})
 
 (comment
+  (grab {:karel [(entity 1 1)]
+         :chips [(entity 1 1) (entity 2 1)]})
   (let [state {:karel [(entity 1 0)]
                :chips [(entity 2 0) (entity 3 0) (entity 1 0)]
                :walls [(entity 2 0) (entity 3 0)]}]
