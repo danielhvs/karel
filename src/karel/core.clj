@@ -15,29 +15,33 @@
 (defn pos [entity]
   [(:x entity) (:y entity)])
 
+(defn get-karel [state]
+  (first (:karel state)))
+
 (defn on-chip? [state]
-  (let [karel (:karel state)
+  (let [karel (get-karel state)
         k-pos (pos karel)
         cs-pos (map pos (:chips state))]
     (seq (filter #(= k-pos %) cs-pos))))
 
 (defn turn [state]
-  (let [karel (:karel state)
+  (let [karel (get-karel state)
         angle (:angle karel)
         next-angle (+ angle 90)
         next-karel
-          (assoc karel :angle (mod next-angle 360))]
+          [(assoc karel :angle (mod next-angle 360))]]
     (assoc state :karel next-karel)))
 
 (defn step "state is a vector of entities"
   [state]
-  (let [karel (:karel state)
+  (let [karel (get-karel state)
         angle (:angle karel)
         dir-fn (get walk-dir angle)
         dir (first (keys dir-fn))
         walk-fn (first (vals dir-fn))]
+    (println state karel angle dir-fn dir walk-fn)
     (assoc state :karel
-        (update karel dir walk-fn))))
+        [(update karel dir walk-fn)])))
 
 (defn make-vertical-line [x y-ini y-end]
   (for [y (range y-ini (inc y-end))]
@@ -48,35 +52,28 @@
     (entity x y)))
 
 (def s1
-  {:karel (entity 3 3)
-   :chips [(entity 1 1) (entity 2 2)]
+  {:karel [(entity 3 3)]
+   :chips [(entity 1 4) (entity 2 3)]
    :walls
      (concat
-       (make-horizontal-line 0 0 3)
-       (make-horizontal-line 3 0 3)
-       (make-vertical-line 0 0 3)
-       (make-vertical-line 3 0 3))})
+       (make-horizontal-line 0 0 8)
+       (make-horizontal-line 8 0 8)
+       (make-vertical-line 0 0 8)
+       (make-vertical-line 8 0 8))})
 
 (comment
-  {:karel {:x 0 :y 0 :angle 0}
-   :chips [{}]}
-
-  (let [state {:karel (entity 1 0)
+  (let [state {:karel [(entity 1 0)]
                :chips [(entity 2 0) (entity 3 0) (entity 1 0)]
                :walls [(entity 2 0) (entity 3 0)]}]
     (on-chip? state))
-  (let [state {:karel (entity 1 0)
+  (let [state {:karel [(entity 1 0)]
                :chips [(entity 2 0) (entity 3 0)]}]
     (on-chip? state))
-  (:karel {:karel (entity 1 0)
-           :walls [(entity 1 0) (entity 1 0)]})
-
-  (step {:karel (entity 0 0)})
-  (entity 0 0)
-  (turn (turn {:karel (entity 1 0)
+  (step {:karel [(entity 0 0)]})
+  (turn (turn {:karel [(entity 1 0)]
                :chips [(entity 0 0)]}))
   (turn
-    (step [(entity 1 0) (entity 1 1)])))
+    (step s1)))
 
 (def L 40)
 (def W 800)
@@ -125,7 +122,7 @@
     (square x y)))
 
 (defn draw-state [state]
-  (doseq [kind [:walls :chips]]
+  (doseq [kind [:walls :chips :karel]]
     (let [points (->pos (-> state
                             kind))]
       (doseq [[x y] (points->quil points L)]
