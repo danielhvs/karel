@@ -101,6 +101,55 @@
        (make-vertical-line 0 0 3)
        (make-vertical-line 7 0 3))})
 
+(def s2
+  {
+   :karel [{:x 1 :y 2 :z 0 :angle 0}]
+   :chips [{:x 1 :y 3 :z 0 :angle 0}
+           {:x 3 :y 3 :z 0 :angle 0}
+           {:x 5 :y 3 :z 0 :angle 0}
+           {:x 7 :y 3 :z 0 :angle 0}]
+   :goals [{:x 2 :y 1 :z 0 :angle 0}
+           {:x 4 :y 1 :z 0 :angle 0}
+           {:x 6 :y 1 :z 0 :angle 0}
+           {:x 8 :y 1 :z 0 :angle 0}]
+   :walls [{:x 1 :y 1 :z 0 :angle 0}
+           {:x 3 :y 1 :z 0 :angle 0}
+           {:x 5 :y 1 :z 0 :angle 0}
+           {:x 7 :y 1 :z 0 :angle 0}
+           {:x 9 :y 1 :z 0 :angle 0}
+           {:x 0 :y 0 :z 0 :angle 0}
+           {:x 0 :y 1 :z 0 :angle 0}
+           {:x 0 :y 2 :z 0 :angle 0}
+           {:x 0 :y 3 :z 0 :angle 0}
+           {:x 0 :y 4 :z 0 :angle 0}
+           {:x 0 :y 4 :z 0 :angle 0}
+           {:x 1 :y 4 :z 0 :angle 0}
+           {:x 2 :y 4 :z 0 :angle 0}
+           {:x 3 :y 4 :z 0 :angle 0}
+           {:x 4 :y 4 :z 0 :angle 0}
+           {:x 5 :y 4 :z 0 :angle 0}
+           {:x 6 :y 4 :z 0 :angle 0}
+           {:x 7 :y 4 :z 0 :angle 0}
+           {:x 8 :y 4 :z 0 :angle 0}
+           {:x 9 :y 4 :z 0 :angle 0}
+           {:x 10 :y 4 :z 0 :angle 0}
+           {:x 10 :y 0 :z 0 :angle 0}
+           {:x 10 :y 1 :z 0 :angle 0}
+           {:x 10 :y 2 :z 0 :angle 0}
+           {:x 10 :y 3 :z 0 :angle 0}
+           {:x 10 :y 4 :z 0 :angle 0}
+           {:x 0 :y 0 :z 0 :angle 0}
+           {:x 1 :y 0 :z 0 :angle 0}
+           {:x 2 :y 0 :z 0 :angle 0}
+           {:x 3 :y 0 :z 0 :angle 0}
+           {:x 4 :y 0 :z 0 :angle 0}
+           {:x 5 :y 0 :z 0 :angle 0}
+           {:x 6 :y 0 :z 0 :angle 0}
+           {:x 7 :y 0 :z 0 :angle 0}
+           {:x 8 :y 0 :z 0 :angle 0}
+           {:x 9 :y 0 :z 0 :angle 0}
+           {:x 10 :y 0 :z 0 :angle 0}]})
+
 (comment
   (grab
     (grab {:karel [(entity 1 1)]
@@ -133,7 +182,7 @@
 
 (defn setup "returns the initial state" []
   (q/frame-rate 10)
-  {:scenario s1
+  {:scenario s2
    :karel (q/load-image "resources/head.png")
    :walls (q/load-image "resources/box32.png")
    :chips (q/load-image "resources/circle32.png")
