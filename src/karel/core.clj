@@ -138,17 +138,31 @@
    :chips (q/load-image "resources/circle32.png")
    :goals (q/load-image "resources/square.png")})
 
+(def solution1
+  [step grab step step step step turn step drop-chip
+   turn turn step turn turn turn step step step step step
+   turn turn])
+
 (defn the-key-handler [{:keys [scenario] :as state} k]
-  (assoc state :scenario
-      (case (:key-code k)
-        68 (drop-chip scenario) ; D
-        71 (grab scenario) ; G
-        74 (turn scenario) ; J
-        75 (step scenario) ; K
-        scenario)))
+  (case (:key-code k)
+    83 (assoc state :iteration 0) ; S
+    (assoc state :scenario
+        (case (:key-code k)
+          68 (drop-chip scenario) ; D
+          71 (grab scenario) ; G
+          74 (turn scenario) ; J
+          75 (step scenario) ; K
+          scenario))))
 
 (defn update-state [state]
-  state)
+  (if-let [index (:iteration state)]
+    (if (< index (count solution1))
+      (let [event (nth solution1 index)]
+        (assoc state :scenario
+            (event (:scenario state))
+          :iteration (inc index)))
+      state)
+    state))
 
 (defn draw-element "{:type [x y]}"
   [{:keys [x y]} img]
