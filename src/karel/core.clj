@@ -193,10 +193,57 @@
    turn turn step turn turn turn step step step step step
    turn turn])
 
+(def turn-up
+  [turn turn turn])
+
+(def turn-down
+  [turn])
+
+(def down
+  (into
+    (into turn-down [step])
+    [turn turn turn]))
+
+(def up
+  (into
+    (into turn-up [step])
+    [turn]))
+
+(def grab-one
+  (into down [grab]))
+
+(def drop-one
+  (flatten
+    (into grab-one [step
+                    up
+                    up
+                    drop-chip
+                    down
+                    step])))
+
+(def solution2
+  (flatten (repeat 4 drop-one)))
+
+(defn fn-solution-1 [state index]
+  (if (< index (count solution1))
+    (let [event (nth solution1 index)]
+      (assoc state :scenario
+          (event (:scenario state))
+        :iteration (inc index)))
+    state))
+
+(defn fn-solution-2 [state index]
+  (if (< index (count solution2))
+    (let [event (nth solution2 index)]
+      (assoc state :scenario
+          (event (:scenario state))
+        :iteration (inc index)))
+    state))
+
 (defn the-key-handler [{:keys [scenario] :as state} k]
   (case (:key-code k)
-    81 (assoc state :iteration 0) ; q
-    87 (assoc state :iteration 0) ; w
+    81 (assoc state :iteration 0 :solution fn-solution-1) ; q
+    87 (assoc state :iteration 0 :solution fn-solution-2) ; w
     69 (assoc state :iteration 0) ; e
     (assoc state :scenario
         (case (:key-code k)
@@ -211,11 +258,8 @@
 
 (defn update-state [state]
   (if-let [index (:iteration state)]
-    (if (< index (count solution1))
-      (let [event (nth solution1 index)]
-        (assoc state :scenario
-            (event (:scenario state))
-          :iteration (inc index)))
+    (if-let [fn-solution (:solution state)]
+      (fn-solution state index)
       state)
     state))
 
