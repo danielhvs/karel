@@ -224,17 +224,9 @@
 (def solution2
   (flatten (repeat 4 drop-one)))
 
-(defn fn-solution-1 [state index]
-  (if (< index (count solution1))
-    (let [event (nth solution1 index)]
-      (assoc state :scenario
-          (event (:scenario state))
-        :iteration (inc index)))
-    state))
-
-(defn fn-solution-2 [state index]
-  (if (< index (count solution2))
-    (let [event (nth solution2 index)]
+(defn fn-solution [state index solution]
+  (if (< index (count solution))
+    (let [event (nth solution index)]
       (assoc state :scenario
           (event (:scenario state))
         :iteration (inc index)))
@@ -242,8 +234,8 @@
 
 (defn the-key-handler [{:keys [scenario] :as state} k]
   (case (:key-code k)
-    81 (assoc state :iteration 0 :solution fn-solution-1) ; q
-    87 (assoc state :iteration 0 :solution fn-solution-2) ; w
+    81 (assoc state :iteration 0 :solution solution1) ; q
+    87 (assoc state :iteration 0 :solution solution2) ; w
     69 (assoc state :iteration 0) ; e
     (assoc state :scenario
         (case (:key-code k)
@@ -258,8 +250,8 @@
 
 (defn update-state [state]
   (if-let [index (:iteration state)]
-    (if-let [fn-solution (:solution state)]
-      (fn-solution state index)
+    (if-let [solution (:solution state)]
+      (fn-solution state index solution)
       state)
     state))
 
