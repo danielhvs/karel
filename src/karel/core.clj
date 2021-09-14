@@ -236,12 +236,10 @@
   (case (:key-code k)
     81 (assoc state :iteration 0 :solution solution1) ; q
     87 (assoc state :iteration 0 :solution solution2) ; w
-    69 (assoc state :iteration 0) ; e
     (assoc state :scenario
         (case (:key-code k)
           49 s1 ; 1
           50 s2 ; 2
-          51 s2 ; 3
           68 (drop-chip scenario) ; d
           71 (grab scenario) ; g
           74 (turn scenario) ; j
