@@ -56,6 +56,16 @@
   (for [x (range x-ini (inc x-end))]
     (entity x y)))
 
+(defn drop-chip [state]
+  (if-let [chip (on-chip? state)]
+    (let [chips (:chips state)
+          new-chip (assoc chip :z -1)]
+      (assoc state :chips
+          (conj
+            (remove (fn [c] (= chip c)) chips)
+            new-chip)))
+    state))
+
 (defn grab [state]
   (if-let [chip (on-chip? state)]
     (let [chips (:chips state)
@@ -116,6 +126,7 @@
 (defn the-key-handler [{:keys [scenario] :as state} k]
   (assoc state :scenario
       (case (:key-code k)
+        68 (drop-chip scenario) ; D
         71 (grab scenario) ; G
         74 (turn scenario) ; J
         75 (step scenario) ; K
