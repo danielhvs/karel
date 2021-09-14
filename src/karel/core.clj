@@ -34,6 +34,14 @@
           [(assoc karel :angle (mod next-angle 360))]]
     (assoc state :karel next-karel)))
 
+(defn in-front-of-wall? [state next-karel]
+  (seq (filter
+         (fn [w] (= (pos-xy next-karel) (pos-xy w)))
+         (:walls state))))
+
+(defn chip-handled? [c]
+  (> (:z c) 0))
+
 (defn step "state is a vector of entities"
   [state]
   (let [karel (get-karel state)
@@ -42,11 +50,17 @@
         dir (first (keys dir-fn))
         walk-fn (first (vals dir-fn))
         next-karel (update karel dir walk-fn)]
-    (if (seq (filter
-               (fn [w] (= (pos-xy next-karel) (pos-xy w)))
-               (:walls state)))
+    (if (in-front-of-wall? state next-karel)
       state
-      (assoc state :karel [next-karel]))))
+      (assoc state
+        :karel [next-karel]
+        :chips (let [chips (:chips state)]
+                 (map (fn [c]
+                        (if (chip-handled? c)
+                          (assoc c
+                            :x (:x next-karel)
+                            :y (:y next-karel))
+                          c)) chips))))))
 
 (defn make-vertical-line [x y-ini y-end]
   (for [y (range y-ini (inc y-end))]
@@ -98,7 +112,8 @@
   (let [state {:karel [(entity 1 0)]
                :chips [(entity 2 0) (entity 3 0)]}]
     (on-chip? state))
-  (step {:karel [(entity 0 0)]})
+  (step {:karel [(entity 0 0)]
+         :chips [(entity 0 0 -1 0)]})
   (turn (turn {:karel [(entity 1 0)]
                :chips [(entity 0 0)]}))
   (turn
