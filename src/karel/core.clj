@@ -63,6 +63,9 @@
             new-chip)))
     state))
 
+(defn ->pos [entities]
+  (map (fn [e] (pos e)) entities))
+
 (def s1
   {:karel [(entity 1 1)]
    :chips [(entity 2 1)]
@@ -105,46 +108,36 @@
   (q/stroke 0xffa8d0db)
   (q/stroke 255 255 0)
   (q/stroke-weight 1)
-  s1)
+  {:scenario s1
+   :karel (q/load-image "resources/head.png")
+   :walls (q/load-image "resources/box32.png")
+   :chips (q/load-image "resources/circle32.png")
+   :goals (q/load-image "resources/square.png")})
 
-(def colors
-  {:walls #(q/fill 0 255 0)
-   :chips #(q/fill 255 0 0)
-   :goals #(q/fill 128 0 128)
-   :karel #(q/fill 0 0 255)})
-
-(defn the-key-handler [state k]
-  (case (:key-code k)
-    74 (turn state) ; J 
-    75 (step state) ; K 
-    state))
-
-(defn ->pos [entities]
-  (map (fn [e] (pos e)) entities))
+(defn the-key-handler [{:keys [scenario] :as state} k]
+  (assoc state :scenario
+      (case (:key-code k)
+        71 (grab scenario) ; G 
+        74 (turn scenario) ; J 
+        75 (step scenario) ; K 
+        scenario)))
 
 (defn update-state [state]
   state)
 
-(defn make-square [l]
-  (fn [x y] (q/rect x y l l)))
-
-(def square (make-square L))
-
 (defn draw-element "{:type [x y]}"
-  [e]
-  (let [kind (first e)
-        [x y] (second e)]
-    ((kind colors))
-    (square x y)))
+  [[x y] img]
+  (q/image img x y))
 
 (defn draw-state [state]
   (q/clear)
   (q/background 255 255 255)
   (doseq [kind [:walls :chips :karel :goals]]
-    (let [points (->pos (-> state
+    (let [scenario (-> state :scenario)
+          points (->pos (-> scenario
                             kind))]
       (doseq [[x y] (points->quil points L)]
-        (draw-element [kind [x y]])))))
+        (draw-element [x y] (kind state))))))
 
 (q/defsketch label-maker
   :title "karel"
