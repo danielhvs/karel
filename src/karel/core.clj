@@ -132,6 +132,7 @@
   (map (fn [e] (point->quil e length)) entities))
 
 (defn setup "returns the initial state" []
+  (q/frame-rate 10)
   {:scenario s1
    :karel (q/load-image "resources/head.png")
    :walls (q/load-image "resources/box32.png")
@@ -165,8 +166,12 @@
     state))
 
 (defn draw-element "{:type [x y]}"
-  [{:keys [x y]} img]
-  (q/image img x y))
+  [{:keys [x y z]} img]
+  (if (= z 1)
+    (do (q/resize img 16 0)
+        (q/image img (+ 8 x) (+ 8 y)))
+    (do (q/resize img 32 0)
+        (q/image img x y))))
 
 (defn sort-to-draw [scenario]
   (let [res
