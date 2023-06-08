@@ -181,8 +181,8 @@
   (map (fn [e] (point->quil e length)) entities))
 
 (defn setup "returns the initial state" []
-  (q/frame-rate 10)
-  {:scenario s2
+  (q/frame-rate (* 2 10))
+  {:scenario s1
    :karel (q/load-image "resources/head.png")
    :walls (q/load-image "resources/box32.png")
    :chips (q/load-image "resources/circle32.png")
@@ -224,12 +224,13 @@
 (def solution2
   (flatten (repeat 4 drop-one)))
 
-(defn fn-solution [state index solution]
+(defn fn-solution
+  [state index solution]
   (if (< index (count solution))
     (let [event (nth solution index)]
-      (assoc state :scenario
-          (event (:scenario state))
-        :iteration (inc index)))
+      (assoc state 
+             :scenario (event (:scenario state))
+             :iteration (inc index)))
     state))
 
 (defn the-key-handler [{:keys [scenario] :as state} k]
@@ -253,13 +254,15 @@
       state)
     state))
 
-(defn draw-element "{:type [x y]}"
-  [{:keys [x y z]} img]
-  (if (= z 1)
-    (do (q/resize img 16 0)
-        (q/image img (+ 8 x) (+ 8 y)))
-    (do (q/resize img 32 0)
-        (q/image img x y))))
+(defn draw-element
+  "{:type [x y]}"
+  [{:keys [x y z type]} state]
+  (let [img (.get (type state))]
+    (if (= z 1)
+      (do (q/resize img 16 0)
+          (q/image img (+ 8 x) (+ 8 y)))
+      (do (q/resize img 32 0)
+          (q/image img x y)))))
 
 (defn sort-to-draw [scenario]
   (let [res
@@ -268,18 +271,18 @@
                           :x (:x e)
                           :y (:y e)
                           :z (:z e)
-                          :angle (:angle e)}) (kind scenario)))]
+                          :angle (:angle e)}) 
+                 (kind scenario)))]
     (->> res
-         (reduce #(into %1 %2) [])
+         (reduce into [])
          (sort-by :z))))
 
-(defn draw-state [state]
+(defn draw-state [{:keys [scenario] :as state}]
   (q/clear)
   (q/background 255 255 255)
-  (let [scenario (-> state :scenario)
-        entities (sort-to-draw scenario)]
+  (let [entities (sort-to-draw scenario)]
     (doseq [e (points->quil entities L)]
-      (draw-element e ((:type e) state)))))
+      (draw-element e state))))
 
 (q/defsketch karel-sketch
   :title "karel"
