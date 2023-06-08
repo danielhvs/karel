@@ -264,22 +264,24 @@
       (do (q/resize img 32 0)
           (q/image img x y)))))
 
-(defn sort-to-draw [scenario]
-  (let [res
-          (for [kind (keys scenario)]
-            (map (fn [e] {:type kind
-                          :x (:x e)
-                          :y (:y e)
-                          :z (:z e)
-                          :angle (:angle e)}) 
-                 (kind scenario)))]
+(defn sort-to-draw
+  [scenario]
+  (let [res (for [kind (keys scenario)]
+              (map (fn [e]
+                     {:type kind
+                      :x (:x e)
+                      :y (:y e)
+                      :z (:z e)
+                      :angle (:angle e)})
+                   (kind scenario)))]
     (->> res
          (reduce into [])
          (sort-by :z))))
 
-(defn draw-state [{:keys [scenario] :as state}]
+(defn draw-state
+  [{:keys [scenario] :as state}]
   (q/clear)
-  (q/background 255 255 255)
+  (q/background 0 0 128)
   (let [entities (sort-to-draw scenario)]
     (doseq [e (points->quil entities L)]
       (draw-element e state))))
